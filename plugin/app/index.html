@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>施工規範編修</title>
+<link rel="stylesheet" href="/studio-kit.css">
+<style>
+  /* Scoped under the root class (= plugin id); kit components are used as-is. */
+  .specbook { padding: 1rem; display: grid; gap: 0.9rem; color: var(--ink); }
+  .specbook h1, .specbook h2, .specbook h3 { margin: 0; overflow-wrap: anywhere; }
+  .specbook .sb-row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+  .specbook .sb-table-wrap { overflow-x: auto; }
+  .specbook .sb-table-wrap td { overflow-wrap: anywhere; vertical-align: top; }
+  .specbook .sb-meta { font-size: var(--text-sm); color: var(--muted); }
+  .specbook .sb-group { display: grid; gap: 0.4rem; }
+  .specbook .sb-check { display: flex; gap: 0.5rem; align-items: baseline; overflow-wrap: anywhere; }
+  .specbook .sb-slot { display: grid; gap: 0.4rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--line); }
+  .specbook .sb-sentence { margin: 0; line-height: 1.7; overflow-wrap: anywhere; white-space: pre-wrap; }
+  .specbook .sb-sentence mark { padding: 0 0.15rem; }
+  .specbook textarea { width: 100%; min-height: 5rem; }
+  .specbook .sb-options { display: grid; gap: 0.35rem; border: 0; padding: 0; margin: 0; }
+  .specbook .sb-options label { display: flex; gap: 0.4rem; align-items: baseline; }
+</style>
+</head>
+<body>
+<div class="specbook">
+  <div class="sb-row"><h1>施工規範編修</h1><span class="sb-meta" id="project-name"></span><span class="sb-meta" id="pack-meta">載入規範資料中…</span></div>
+  <div class="kit-callout" data-status="warning" id="no-project" hidden>尚未選擇案場：請先在左上角選擇案場。選好後可帶入預算書，系統會依預算書的工項碼挑出需要的規範章節，並可儲存。</div>
+  <div class="kit-callout" data-status="danger" id="notice" role="alert" hidden></div>
+  <nav class="kit-segmented" id="steps" aria-label="步驟"></nav>
+
+  <section id="step-1" class="sb-group" hidden>
+    <h2>1. 帶入預算書</h2>
+    <p class="sb-meta">讀取 PCCES 預算書「預算詳細表」的「編碼(備註)」欄。檔案只在瀏覽器讀取，不會上傳。</p>
+    <label class="kit-button">選擇預算書 xlsx 檔<input type="file" id="xlsx" accept=".xlsx" hidden></label>
+    <p class="sb-meta" id="xlsx-status"></p>
+    <div class="kit-field">
+      <label for="search">手動加章（章碼或章名）</label>
+      <input id="search" type="search" autocomplete="off" placeholder="例如 07505 或 防水">
+    </div>
+    <div class="kit-list" id="search-results"></div>
+    <ul id="import-warnings" class="sb-meta"></ul>
+  </section>
+
+  <section id="step-2" class="sb-group" hidden>
+    <h2>2. 確認章節</h2>
+    <div class="sb-row"><button class="kit-button" type="button" id="save-chapters-top">確定章節</button></div>
+    <div id="chapter-groups" class="sb-group"></div>
+    <div class="sb-row"><button class="kit-button" type="button" id="save-chapters">確定章節</button></div>
+  </section>
+
+  <section id="step-3" class="sb-group" hidden>
+    <h2>3. 填寫</h2>
+    <div class="sb-row"><label for="chapter-pick" class="kit-sr-only">章節</label><select id="chapter-pick"></select>
+      <span class="kit-status-line" id="progress" aria-live="polite"></span>
+      <button class="kit-button kit-button--secondary" type="button" id="prev-chapter-top">← 上一章</button>
+      <button class="kit-button kit-button--secondary" type="button" id="next-chapter-top">下一章 →</button>
+      <button class="kit-button" type="button" id="goto-check-top">完成，前往檢查</button>
+    </div>
+    <div class="sb-row">
+      <button class="kit-button kit-button--secondary" type="button" id="defaults">本章全部採用預設</button>
+      <label class="sb-check"><input type="checkbox" id="hide-filled">只顯示未填</label>
+    </div>
+    <div id="slots" class="sb-group"></div>
+    <div class="kit-callout" data-status="success" id="chapter-done" hidden>本章已全部填寫</div>
+    <div class="sb-row">
+      <button class="kit-button kit-button--secondary" type="button" id="prev-chapter-bottom">← 上一章</button>
+      <button class="kit-button kit-button--secondary" type="button" id="next-chapter-bottom">下一章 →</button>
+      <button class="kit-button" type="button" id="goto-check">完成，前往檢查</button>
+    </div>
+  </section>
+
+  <section id="step-4" class="sb-group" hidden>
+    <h2>4. 檢查並產出</h2>
+    <div id="lint" class="sb-group"></div>
+    <div class="sb-row">
+      <button class="kit-button kit-button--secondary" type="button" id="download-draft">下載草稿</button>
+      <button class="kit-button" type="button" id="download-final">下載正式版</button>
+      <button class="kit-button kit-button--secondary" type="button" id="publish">定稿</button>
+      <button class="kit-button kit-button--secondary" type="button" id="reopen" hidden>解除定稿</button>
+    </div>
+    <p class="sb-meta">目錄只列章名，不含頁碼。</p>
+  </section>
+</div>
+<script src="/studio-plugin.js"></script>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
